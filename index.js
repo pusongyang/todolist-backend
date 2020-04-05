@@ -90,7 +90,6 @@ app.post('/api/rule', (req, res) => {
     default:
       break;
   }
-  console.log(todos);
   const result = {
     list: todos,
     pagination: {
