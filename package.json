@@ -1,0 +1,17 @@
+{
+  "name": "todolist-backend",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "description": "",
+  "devDependencies": {
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@webserverless/fc-express": "latest",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.0"
+  }
+}
