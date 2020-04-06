@@ -18,3 +18,4 @@ package-lock.json
 # visual studio code
 .history
 *.log
+db.json
