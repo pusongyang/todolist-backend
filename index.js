@@ -1,29 +1,70 @@
 // 主进程代码
-// 阿里云FaaS部署
-// const { Server } = require('@webserverless/fc-express')
 const express = require('express');
 const fs = require('fs');
-const path = require('path');
 const bodyParser = require('body-parser');
+//用于本地文件存储数据库
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync');
+const adapter = new FileSync('db.json');
+const db = low(adapter);
+//监听端口号
 const PORT=3001;
 
-// initial todo list
-let todos = [
-  {
-    key: 1,
-    disabled: false,
-    href: 'https://ant.design',
-    avatar: 'https://gw.alipayobjects.com/zos/rmsportal/eeHMaZBwmTvLdIwMfBpg.png',//'https://gw.alipayobjects.com/zos/rmsportal/udxAbMEhpwthVVcjLXik.png',
-    name: `来自后端的你`,
-    owner: '秦粤',
-    desc: '这是一段描述',
-    callNo: 18890992445,
-    status: 1,
-    updatedAt: new Date(),
-    createdAt: new Date(),
-    progress: 0,
+// 初始化待办任务数据
+const todos = {
+  key: 1,
+  disabled: false,
+  href: 'https://ant.design',
+  avatar: 'https://gw.alipayobjects.com/zos/rmsportal/eeHMaZBwmTvLdIwMfBpg.png',
+  name: `来自后端的你`,
+  owner: '秦粤',
+  desc: '这是一段描述',
+  callNo: 18890992445,
+  status: 1,
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  progress: 0,
+};
+// 初始化当前用户
+const me = {
+  name: '秦粤',
+  avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+  userid: '00000001',
+  email: 'qinyue@me.com',
+  signature: '陕西的秦，广东的粤',
+  title: '全栈工程师',
+  group: '某厂－某事业群－某平台部－某技术部－中台团队',
+  tags: [{
+    key: '0',
+    label: '全栈',
+  }],
+  notifyCount: 12,
+  unreadCount: 11,
+  country: 'China',
+  geographic: {
+    province: {
+      label: '浙江省',
+      key: '330000',
+    },
+    city: {
+      label: '杭州市',
+      key: '330100',
+    },
   },
-];
+  address: '余杭区某小区',
+  phone: '0752-26888xxxx',
+};
+const defaultRule = {
+  href: 'https://ant.design',
+  avatar: 'https://gw.alipayobjects.com/zos/rmsportal/udxAbMEhpwthVVcjLXik.png',
+  owner: me.name,
+  callNo: Math.floor(Math.random() * 1000),
+  status: 1,
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  progress: 0,
+};
+db.defaults({ todos: [todos], user: me }).write();
 
 const app = express();
 // 静态资源路由
@@ -34,6 +75,7 @@ app.use(bodyParser.json());
 // 后端服务路由
 app.get('/api/rule', (req, resp) => {
   const { current = 1, pageSize = 10 } = req.query;
+  const todos = db.get('todos').value();
   const result = {
     data: todos,
     total: todos.length,
@@ -46,47 +88,28 @@ app.get('/api/rule', (req, resp) => {
 app.post('/api/rule', (req, res) => {
   const body = req.body;
   const { method, name, desc, key, status } = body;
+  let newRule;
 
   switch (method) {
     case 'delete':
-      todos = todos.filter(item => key.indexOf(item.key) === -1);
+      const todos = db.get('todos').value();
+      const newTodos = todos.filter(item => key.indexOf(item.key) === -1);
+      db.set('todos', newTodos)
+        .write();
       break;
     case 'post':
-      (() => {
-        const i = todos.length+1;
-        const newRule = {
-          key: i,
-          href: 'https://ant.design',
-          avatar: [
-            'https://gw.alipayobjects.com/zos/rmsportal/eeHMaZBwmTvLdIwMfBpg.png',
-            'https://gw.alipayobjects.com/zos/rmsportal/udxAbMEhpwthVVcjLXik.png',
-          ][i % 2],
-          name,
-          owner: '曲丽丽',
-          desc,
-          callNo: Math.floor(Math.random() * 1000),
-          status: 1,
-          updatedAt: new Date(),
-          createdAt: new Date(),
-          progress: 0,
-        };
-        todos.unshift(newRule);
-        return res.json(newRule);
-      })();
-      return;
+      const newKey = db.get('todos').value().length + 1;
+      newRule = { ...defaultRule, key: newKey, name, desc };
+      db.get('todos')
+        .push(newRule)
+        .write();
+      return res.json(newRule);
     case 'update':
-      (() => {
-        let newRule = {};
-        todos = todos.map(item => {
-          if (item.key === key) {
-            newRule = { ...item, desc, name, status };
-            return { ...item, desc, name, status };
-          }
-          return item;
-        });
-        return res.json(newRule);
-      })();
-      return;
+      newRule = db.get('todos')
+                  .find({ key: key })
+                  .assign({ desc, name, status})
+                  .write();
+      return res.json(newRule);
     default:
       break;
   }
@@ -99,36 +122,6 @@ app.post('/api/rule', (req, res) => {
   res.json(result);
 })
 app.get('/api/currentUser', (req, resp) => {
-  const me = {
-    name: 'Serati Ma',
-    avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-    userid: '00000001',
-    email: 'qinyue@me.com',
-    signature: '陕西的秦，广东的粤',
-    title: '全栈工程师',
-    group: '某厂－某事业群－某平台部－某技术部－中台团队',
-    tags: [
-      {
-        key: '0',
-        label: '老司机',
-      },
-    ],
-    notifyCount: 12,
-    unreadCount: 11,
-    country: 'China',
-    geographic: {
-      province: {
-        label: '浙江省',
-        key: '330000',
-      },
-      city: {
-        label: '杭州市',
-        key: '330100',
-      },
-    },
-    address: '余杭区某小区',
-    phone: '0752-26888xxxx',
-  };
   resp.json(me);
 });
 
