@@ -19,3 +19,4 @@ package-lock.json
 .history
 *.log
 db.json
+code.zip

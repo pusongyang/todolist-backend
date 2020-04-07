@@ -87,32 +87,22 @@ app.get('/api/rule', (req, resp) => {
 });
 app.post('/api/rule', (req, res) => {
   const body = req.body;
-  const { method, name, desc, key, status } = body;
+  const { name, desc } = body;
   let newRule;
-
-  switch (method) {
-    case 'delete':
-      const todos = db.get('todos').value();
-      const newTodos = todos.filter(item => key.indexOf(item.key) === -1);
-      db.set('todos', newTodos)
-        .write();
-      break;
-    case 'post':
-      const newKey = db.get('todos').value().length + 1;
-      newRule = { ...defaultRule, key: newKey, name, desc };
-      db.get('todos')
-        .push(newRule)
-        .write();
-      return res.json(newRule);
-    case 'update':
-      newRule = db.get('todos')
-                  .find({ key: key })
-                  .assign({ desc, name, status})
-                  .write();
-      return res.json(newRule);
-    default:
-      break;
-  }
+  const newKey = db.get('todos').value().length + 1;
+  newRule = { ...defaultRule, key: newKey, name, desc };
+  db.get('todos')
+    .push(newRule)
+    .write();
+  return res.json(newRule);
+});
+app.delete('/api/rule', (req, res) => {
+  const body = req.body;
+  const { key } = body;
+  const todos = db.get('todos').value();
+  const newTodos = todos.filter(item => key.indexOf(item.key) === -1);
+  db.set('todos', newTodos)
+    .write();
   const result = {
     list: todos,
     pagination: {
@@ -120,7 +110,17 @@ app.post('/api/rule', (req, res) => {
     },
   };
   res.json(result);
-})
+});
+app.put('/api/rule', (req, res) => {
+  const body = req.body;
+  const { name, desc, key, status } = body;
+  let newRule;
+  newRule = db.get('todos')
+  .find({ key: key })
+  .assign({ desc, name, status})
+  .write();
+  return res.json(newRule);
+});
 app.get('/api/currentUser', (req, resp) => {
   resp.json(me);
 });
@@ -130,11 +130,6 @@ app.all("/*", (req, resp) => {
   resp.setHeader('Content-Type', 'text/html');
   resp.send(fs.readFileSync('./public/index.html', 'utf8'));
 });
-// 阿里云FaaS部署
-// const server = new Server(app);
-// module.exports.handler = function(req, res, context) {
-//   server.httpProxy(req, res, context);
-// };
 
 // 监听PORT端口
 app.listen(PORT, () => console.log(`Example app listening at http://localhost:${PORT}`))
