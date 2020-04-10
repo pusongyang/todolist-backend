@@ -20,3 +20,5 @@ package-lock.json
 *.log
 db.json
 code.zip
+aliyunConfig.js
+test.js

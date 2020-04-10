@@ -4,27 +4,6 @@ const { Server } = require('@webserverless/fc-express');
 const express = require('express');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-//用于本地文件存储数据库
-const low = require('lowdb')
-const Memory = require('lowdb/adapters/Memory');
-const adapter = new Memory('db.json');
-const db = low(adapter);
-
-// 初始化待办任务数据
-const todos = {
-  key: 1,
-  disabled: false,
-  href: 'https://ant.design',
-  avatar: 'https://gw.alipayobjects.com/zos/rmsportal/eeHMaZBwmTvLdIwMfBpg.png',
-  name: `来自后端的你`,
-  owner: '秦粤',
-  desc: '这是一段描述',
-  callNo: 18890992445,
-  status: 1,
-  updatedAt: new Date(),
-  createdAt: new Date(),
-  progress: 0,
-};
 // 初始化当前用户
 const me = {
   name: '秦粤',
@@ -54,73 +33,12 @@ const me = {
   address: '余杭区某小区',
   phone: '0752-26888xxxx',
 };
-const defaultRule = {
-  href: 'https://ant.design',
-  avatar: 'https://gw.alipayobjects.com/zos/rmsportal/udxAbMEhpwthVVcjLXik.png',
-  owner: me.name,
-  callNo: Math.floor(Math.random() * 1000),
-  status: 1,
-  updatedAt: new Date(),
-  createdAt: new Date(),
-  progress: 0,
-};
-db.defaults({ todos: [todos], user: me }).write();
 
 const app = express();
 // 静态资源路由
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
-// 后端服务路由
-app.get('/api/rule', (req, resp) => {
-  const { current = 1, pageSize = 10 } = req.query;
-  const todos = db.get('todos').value();
-  const result = {
-    data: todos,
-    total: todos.length,
-    success: true,
-    pageSize,
-    current: current || 1,
-  };
-  resp.json(result);
-});
-app.post('/api/rule', (req, res) => {
-  const body = req.body;
-  const { name, desc } = body;
-  let newRule;
-  const newKey = db.get('todos').value().length + 1;
-  newRule = { ...defaultRule, key: newKey, name, desc };
-  db.get('todos')
-  .push(newRule)
-  .write();
-  return res.json(newRule);
-});
-app.delete('/api/rule', (req, res) => {
-  const body = req.body;
-  const { key } = body;
-  const todos = db.get('todos').value();
-  const newTodos = todos.filter(item => key.indexOf(item.key) === -1);
-  db.set('todos', newTodos)
-  .write();
-  const result = {
-    list: todos,
-    pagination: {
-      total: todos.length,
-    },
-  };
-  res.json(result);
-});
-app.put('/api/rule', (req, res) => {
-  const body = req.body;
-  const { name, desc, key, status } = body;
-  let newRule;
-  newRule = db.get('todos')
-  .find({ key: key })
-  .assign({ desc, name, status})
-  .write();
-  return res.json(newRule);
-});
 app.get('/api/currentUser', (req, resp) => {
   resp.json(me);
 });
