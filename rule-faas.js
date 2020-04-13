@@ -108,18 +108,33 @@ app.all("/*", (req, resp) => {
 });
 // 阿里云FaaS部署
 const server = new Server(app);
-module.exports.handler = async function(req, res, context) {
+module.exports.handler = function(req, res, context) {
+  server.httpProxy(req, res, context);
+};
+//额外进程，事件循环EventLoop同步链表数据库
+const syncDBPromise = () => {
   const params = {
     tableName,
     primaryKey,
     returnContent: { returnType: TableStore.ReturnType.Primarykey }
   };
-  client.getRow(params, function (err, data) {
-    if (err) {
-      console.log('error:', err);
-      return;
+  return new Promise((resolve, reject) => {
+    client.getRow(params, function (err, data) {
+      if (err) {
+        reject('error:', err);
+        return;
+      }
+      resolve(data);
+    });
+  })
+}
+function syncDB() {
+  syncDBPromise().then(data => {
+      TodoList = JSON.parse(data.row.attributes[0].columnValue);
     }
-    TodoList = JSON.parse(data.row.attributes[0].columnValue);
+  ).catch( err => {
+    TodoList = [];
   });
-  server.httpProxy(req, res, context);
-};
+  // setTimeout(syncDB, 1000);
+}
+syncDB();
