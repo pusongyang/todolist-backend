@@ -4,6 +4,8 @@ const { Server } = require('@webserverless/fc-express');
 const express = require('express');
 const fs = require('fs');
 const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken');
+const { accessKeySecret } = require('./aliyunConfig');
 // 初始化当前用户
 const me = {
   name: '秦粤',
@@ -40,6 +42,8 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.get('/api/currentUser', (req, resp) => {
+  const jwtToken = jwt.sign({ data: me.name }, accessKeySecret, { expiresIn: '1h' });
+  resp.cookie('jwtToken', jwtToken);
   resp.json(me);
 });
 

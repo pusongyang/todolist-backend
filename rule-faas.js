@@ -2,8 +2,10 @@
 const { Server } = require('@webserverless/fc-express');
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const TableStore = require('tablestore');
 const { v4 } = require('uuid');
+const jwt = require('jsonwebtoken');
 const {endpoint, accessKeyId, accessKeySecret, instancename, tableName, primaryKey} = require('./aliyunConfig');
 
 const defaultRule = {
@@ -42,7 +44,9 @@ function updateTodos(data) {
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.get('/api/rule', (req, resp) => {
+app.use(cookieParser());
+
+app.get('/api/rule', (req, res) => {
   const { current = 1, pageSize = 10 } = req.query;
   const result = {
     data: TodoList,
@@ -51,9 +55,10 @@ app.get('/api/rule', (req, resp) => {
     pageSize,
     current: current || 1,
   };
-  resp.json(result);
+  res.json(result);
 });
 app.post('/api/rule',async (req, res) => {
+  checkJWT(req, res);
   const body = req.body;
   const { name, desc } = body;
   let newRule = { ...defaultRule, key: v4(), name, desc };
@@ -68,6 +73,7 @@ app.post('/api/rule',async (req, res) => {
   });
 });
 app.delete('/api/rule',async (req, res) => {
+  checkJWT(req, res);
   const body = req.body;
   const { key } = body;
   TodoList = TodoList.filter(item => key.indexOf(item.key) === -1);
@@ -87,6 +93,7 @@ app.delete('/api/rule',async (req, res) => {
   });
 });
 app.put('/api/rule',async (req, res) => {
+  checkJWT(req, res);
   const body = req.body;
   const { name, desc, key, status } = body;
   const target = TodoList.findIndex((todo) => todo.key == key);
@@ -107,6 +114,18 @@ app.all("/*", (req, resp) => {
   return resp.json(TodoList);
 });
 // 阿里云FaaS部署
+const checkJWT = (req, res) => {
+  try {
+    jwt.verify(req.cookies.jwtToken, accessKeySecret);
+  } catch (err) {
+    res.status(403);
+    return res.json({
+      success: false,
+      message: 'JWT token auth failed',
+    });
+  }
+  return true;
+};
 const server = new Server(app);
 module.exports.handler = function(req, res, context) {
   server.httpProxy(req, res, context);
