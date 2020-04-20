@@ -147,13 +147,14 @@ const syncDBPromise = () => {
     });
   })
 }
-function syncDB() {
+// 函数初始化入口：rule-faas.initializer
+module.exports.initializer = async function(context, callback) {
   syncDBPromise().then(data => {
       TodoList = JSON.parse(data.row.attributes[0].columnValue);
     }
   ).catch( err => {
     TodoList = [];
+  }).finally( () => {
+    callback(null, '');
   });
-  // setTimeout(syncDB, 1000);
-}
-syncDB();
+};
