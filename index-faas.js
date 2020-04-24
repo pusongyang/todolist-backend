@@ -135,7 +135,7 @@ app.all("/*", (req, resp) => {
   resp.setHeader('Content-Type', 'text/html');
   resp.send(fs.readFileSync('./public/index.html', 'utf8'));
 });
-阿里云FaaS部署
+// 阿里云FaaS部署
 const server = new Server(app);
 module.exports.handler = function(req, res, context) {
   server.httpProxy(req, res, context);
