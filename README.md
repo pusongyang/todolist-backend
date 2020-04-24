@@ -32,3 +32,30 @@ yarn
 npm start
 ```
 启动后，你可以通过浏览器地址栏：<http://127.0.0.1:3001>访问你的本地代码；
+
+
+# 阿里云环境部署参考
+## 0. 准备工作
+* [安装阿里云的命令行工具fun](https://help.aliyun.com/document_detail/161136.html)
+* [配置工具的授权](https://help.aliyun.com/document_detail/146702.html)
+## 1. 克隆代码仓库
+## 2. 替换函数计算用到的文件
+```
+cp index-faas.js index.js
+```
+## 3. 安装依赖
+```
+fun install
+```
+## 4. 部署服务上阿里云
+```
+fun deploy
+```
+## 5. 在阿里云上配置自定义域名及路由
+```
+https://fc.console.aliyun.com/
+需要具备已备案的域名
+路由的路径设置需要配置成: /* 
+```
+## 6. 验证效果
+
