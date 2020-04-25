@@ -2,3 +2,5 @@
 .idea
 .git
 *.md
+istio-1.4.3
+knative

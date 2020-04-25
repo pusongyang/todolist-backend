@@ -3,8 +3,6 @@ const express = require('express');
 const fs = require('fs');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const TableStore = require('tablestore');
-const { v4 } = require('uuid');
 const jwt = require('jsonwebtoken');
 const md5 = require('md5');
 const { findIndex,omit } = require('lodash');
@@ -43,24 +41,12 @@ const me = {
   address: '余杭区某小区',
   phone: '0752-26888xxxx',
 };
-const defaultRule = {
-  href: 'https://ant.design',
-  avatar: 'https://gw.alipayobjects.com/zos/rmsportal/udxAbMEhpwthVVcjLXik.png',
-  owner: '秦粤',
-  callNo: Math.floor(Math.random() * 1000),
-  status: 1,
-  updatedAt: new Date(),
-  createdAt: new Date(),
-  progress: 0,
-};
-let TodoList = [];
-const client = new TableStore.Client({
-  accessKeyId,
-  accessKeySecret,
-  endpoint,
-  instancename,
-  maxRetries:20,//默认20次重试，可以省略这个参数。
-});
+const ENV = process.env;
+const PORT = process.PORT || 3001;
+let ruleURL = 'http://localhost:3000/api/rule';
+if (ENV.MYAPP_PORT_3001_TCP) {
+  ruleURL = 'http://rule.cluster.local/api/rule';
+}
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -68,7 +54,6 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 // 静态资源路由
 app.use(express.static('public'));
-
 
 /*****   user apis ********/
 app.get('/api/currentUser', (req, resp) => {
@@ -244,59 +229,28 @@ app.get('/api/rule', (req, res) => {
   };
   res.json(result);
 });
-app.post('/api/rule',async (req, res) => {
-  checkJWT(req, res);
-  const body = req.body;
-  const { name, desc } = body;
-  let newRule = { ...defaultRule, key: v4(), name, desc };
-  TodoList.unshift(newRule);
-  const params = updateTodos(TodoList);
-  client.updateRow(params, function (err, data) {
-    if (err) {
-      console.log('error:', err);
-      return;
-    }
-    return res.json(newRule);
-  });
+app.all('/api/rule', (req, res) => {
+  // checkJWT(req, res);
+  if (req.method === 'PUT') {
+    request.put(ruleURL, {form: req.body}).pipe(res);
+  } else if (req.method === 'POST') {
+    request.post(ruleURL, {form: req.body}).pipe(res);
+  } else if (req.method === 'DELETE') {
+    request.del(ruleURL, {form: req.body}).pipe(res);
+  } else {
+    request.get(ruleURL).pipe(res);
+  }
 });
-app.delete('/api/rule',async (req, res) => {
-  checkJWT(req, res);
-  const body = req.body;
-  const { key } = body;
-  TodoList = TodoList.filter(item => key.indexOf(item.key) === -1);
-  const params = updateTodos(TodoList);
-  client.updateRow(params, function (err, data) {
-    if (err) {
-      console.log('error:', err);
-      return;
-    }
-    const result = {
-      list: TodoList,
-      pagination: {
-        total: TodoList.length,
-      },
-    };
-    return res.json(result);
-  });
-});
-app.put('/api/rule',async (req, res) => {
-  checkJWT(req, res);
-  const body = req.body;
-  const { name, desc, key, status } = body;
-  const target = TodoList.findIndex((todo) => todo.key == key);
-  let newRule = { ...TodoList[target], desc, name, status};
-  TodoList[target] = newRule;
-  const params = updateTodos(TodoList);
-  client.updateRow(params, function (err, data) {
-    if (err) {
-      console.log('error:', err);
-      return;
-    }
-    return res.json(newRule);
-  });
+// app.all('/api/user', (req, res) => {
+//   res.json({});
+// });
+
+// SPA单页应用，默认加载index.html
+app.all("/*", (req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.send(fs.readFileSync('./public/index.html', 'utf8'));
 });
 
-// 阿里云FaaS部署
 const checkJWT = (req, res) => {
   try {
     jwt.verify(req.cookies.jwtToken, accessKeySecret);

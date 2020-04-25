@@ -3,9 +3,9 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const TableStore = require('tablestore');
 const { v4 } = require('uuid');
-const jwt = require('jsonwebtoken');
 const {endpoint, accessKeyId, accessKeySecret, instancename, tableName, primaryKey} = require('./aliyunConfig');
 
+const PORT = process.PORT || 3000;
 const defaultRule = {
   href: 'https://ant.design',
   avatar: 'https://gw.alipayobjects.com/zos/rmsportal/udxAbMEhpwthVVcjLXik.png',
@@ -35,9 +35,6 @@ function updateTodos(data) {
   };
   return params;
 }
-// (async () => {
-//   return await initTodos();
-// })();
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -56,7 +53,6 @@ app.get('/api/rule', (req, res) => {
   res.json(result);
 });
 app.post('/api/rule',async (req, res) => {
-  checkJWT(req, res);
   const body = req.body;
   const { name, desc } = body;
   let newRule = { ...defaultRule, key: v4(), name, desc };
@@ -71,7 +67,6 @@ app.post('/api/rule',async (req, res) => {
   });
 });
 app.delete('/api/rule',async (req, res) => {
-  checkJWT(req, res);
   const body = req.body;
   const { key } = body;
   TodoList = TodoList.filter(item => key.indexOf(item.key) === -1);
@@ -90,8 +85,7 @@ app.delete('/api/rule',async (req, res) => {
     return res.json(result);
   });
 });
-app.put('/api/rule',async (req, res) => {
-  checkJWT(req, res);
+app.put('/api/rule',(req, res) => {
   const body = req.body;
   const { name, desc, key, status } = body;
   const target = TodoList.findIndex((todo) => todo.key == key);
@@ -107,23 +101,6 @@ app.put('/api/rule',async (req, res) => {
   });
 });
 
-// 默认路由
-app.all("/*", (req, resp) => {
-  return resp.json(TodoList);
-});
-// 阿里云FaaS部署
-const checkJWT = (req, res) => {
-  try {
-    jwt.verify(req.cookies.jwtToken, accessKeySecret);
-  } catch (err) {
-    res.status(403);
-    return res.json({
-      success: false,
-      message: 'JWT token auth failed',
-    });
-  }
-  return true;
-};
 //额外进程，事件循环EventLoop同步链表数据库
 const params = {
   tableName,
@@ -132,7 +109,7 @@ const params = {
 };
 client.getRow(params, function (err, data) {
   if (err) {
-    reject('error:', err);
+    console.error('error:', err);
     return;
   }
   TodoList = JSON.parse(data.row.attributes[0].columnValue);
