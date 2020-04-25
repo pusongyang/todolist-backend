@@ -25,7 +25,7 @@ spec:
         app: myapp
     spec:
       containers:
-        - image: registry.cn-shanghai.aliyuncs.com/jike-serverless/todolist:latest
+        - image: registry.cn-shanghai.aliyuncs.com/jike-serverless/todolist:lesson09
           name: myapp
           resources:
             requests:

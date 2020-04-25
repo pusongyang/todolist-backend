@@ -3,11 +3,14 @@ kind: Service
 metadata:
   name: rule
 spec:
-  type: NodePort
-  ports:
-    - port: 3001
+  type: ClusterIP
   selector:
     app: rule
+  ports:
+    - name: http
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
 ---
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2，after 1.9.0 use apps/v1
 kind: Deployment
@@ -25,7 +28,7 @@ spec:
         app: rule
     spec:
       containers:
-        - image: registry.cn-shanghai.aliyuncs.com/jike-serverless/rule:latest
+        - image: registry.cn-shanghai.aliyuncs.com/jike-serverless/rule:lesson09
           name: rule
           resources:
             requests:
@@ -34,11 +37,8 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
-          env:
-            - name: PORT
-              value: "3001"
           ports:
-            - containerPort: 3001
+            - containerPort: 3000
               name: rule
       imagePullSecrets:
         - name: regcred
