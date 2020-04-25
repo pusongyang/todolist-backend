@@ -15,6 +15,7 @@
     "express": "^4.17.0",
     "jsonwebtoken": "^8.5.1",
     "lowdb": "^1.0.0",
+    "request": "^2.88.2",
     "tablestore": "^5.0.7"
   }
 }

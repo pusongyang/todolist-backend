@@ -1,0 +1,3 @@
+FROM registry.cn-shanghai.aliyuncs.com/jike-serverless/todolist:latest
+#base 6u2 alios
+ENTRYPOINT [ "node","rule.js" ]
