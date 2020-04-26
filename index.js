@@ -7,13 +7,13 @@ const jwt = require('jsonwebtoken');
 const request = require('request');
 
 const { accessKeySecret } = require('./aliyunConfig');
-const ENV = process.env;
-const PORT = process.PORT || 3001;
+const env = process.env;
+const PORT = 3001;
 let ruleURL = 'http://localhost:3000/api/rule';
 let userURL = 'http://localhost:3002';
-if (ENV.MYAPP_PORT_3001_TCP) {
-  ruleURL = 'http://rule.default.svc.cluster.local:3000/api/rule';
-  userURL = 'http://user.default.svc.cluster.local:3002';
+if (env.isKNative === 'true') {
+  ruleURL = 'http://rule.default.svc.cluster.local/api/rule';
+  userURL = 'http://user.default.svc.cluster.local';
 }
 
 const app = express();

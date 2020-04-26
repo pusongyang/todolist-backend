@@ -14,10 +14,12 @@ const params = {
   primaryKey:[{ 'id': TableStore.Long.fromNumber(1) } ],
   returnContent: { returnType: TableStore.ReturnType.Primarykey }
 };
+const env = process.env;
+const PORT = 3002;
 
 // 初始化当前用户
 const meDefault = {
-  name: '秦粤',
+  name: (env.version === 'v1') ? '秦粤' : '粤秦D',
   avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
   userid: '00000001',
   email: 'qinyue@me.com',
@@ -44,8 +46,6 @@ const meDefault = {
   address: '余杭区某小区',
   phone: '0752-26888xxxx',
 };
-const env = process.env;
-const PORT = env.PORT || 3002;
 const client = new TableStore.Client({
   accessKeyId,
   accessKeySecret,

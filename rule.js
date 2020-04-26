@@ -5,8 +5,7 @@ const TableStore = require('tablestore');
 const { v4 } = require('uuid');
 const {endpoint, accessKeyId, accessKeySecret, instancename, tableName, primaryKey} = require('./aliyunConfig');
 
-const env = process.env;
-const PORT = env.PORT || 3000;
+const PORT = 3000;
 const defaultRule = {
   href: 'https://ant.design',
   avatar: 'https://gw.alipayobjects.com/zos/rmsportal/udxAbMEhpwthVVcjLXik.png',

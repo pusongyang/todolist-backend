@@ -1,0 +1,24 @@
+apiVersion: serving.knative.dev/v1alpha1
+kind: Service
+metadata:
+  name: user
+  namespace: default
+  labels:
+    serving.knative.dev/visibility: cluster-local
+spec:
+  template:
+    metadata:
+      name: user-service-v1
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+    spec:
+      containers:
+        - image: registry.cn-shanghai.aliyuncs.com/jike-serverless/user:lesson09
+          ports:
+            - name: http1
+              containerPort: 3002
+          env:
+            - name: version
+              value: 'v1'
+      imagePullSecrets:
+          - name: regcred
