@@ -32,3 +32,37 @@ yarn
 npm start
 ```
 启动后，你可以通过浏览器地址栏：<http://127.0.0.1:3001>访问你的本地代码；
+
+# 阿里云配置文件`aliyunConfig`说明
+```
+//.aliyunConfig文件，保存秘钥，切记不可以上传Git
+const endpoint = "https://rule.cn-shanghai.ots.aliyuncs.com";
+// AccessKey 阿里云身份验证，在阿里云服务器管理控制台创建
+const accessKeyId = "AccessKey";
+// SecretKey 阿里云身份验证，在阿里云服务器管理控制台创建
+const accessKeySecret = "SecretKey";
+// 在数据链表中查看
+const instancename = "rule";
+const tableName = 'todos';
+const primaryKey = [{ 'key': 'list' } ];
+
+module.exports = {endpoint, accessKeyId, accessKeySecret, instancename, tableName, primaryKey};
+```
+为了获取配置文件中的信息,需要执行如下几部操作.
+
+## 1. 开通阿里云[表格存储]
+```
+打开 https://ots.console.aliyun.com/ 选择合适的区域,开通服务.
+```
+
+## 2. 创建实例及表 (即配置文件中的`instancename`、`tableName`、`primaryKey`)
+1. 老师的配置文件的实例名为`rule`
+2. 创建表名为`todos`,主键为`key`且是字符串类型. [很重要 否则服务部署好了也无法写入成功]
+
+## 3. 获取实例访问地址 (即配置文件中的`endpoint`)
+在`实例访问地址`栏很容易找到该地址. (图省事,可以直接选用`公网`地址.)
+
+## 4. 获取用户`AccessKey`及`SecretKey`
+打开[RAM访问控制](https://ram.console.aliyun.com/)
+创建一个用户,及赋予`AliyunOTSFullAccess`权限. [很重要 否则服务无权限操作相应库及表]
+
