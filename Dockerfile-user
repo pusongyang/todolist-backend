@@ -1,3 +1,0 @@
-FROM registry.cn-shanghai.aliyuncs.com/jike-serverless/todolist:lesson09
-#base 6u2 alios
-ENTRYPOINT [ "node","user.js" ]

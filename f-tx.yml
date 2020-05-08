@@ -1,0 +1,69 @@
+# 腾讯云使用的f.yml，使用时替换f.yml
+service: fc-qinyue-test
+
+provider:
+  name: tencent
+  runtime: nodejs10
+  serviceId: service-czcc812k
+
+functions:
+  index:
+    handler: index.handler
+    events:
+      - http:
+          path: /*
+
+  getUser:
+    handler: user.get
+    events:
+      - http:
+          path: /user/:id
+          method: get
+
+  listUser:
+    handler: user.list
+    events:
+      - http:
+          path: /api/users
+          method: get
+
+  registerUser:
+    handler: user.register
+    events:
+      - http:
+          path: /user/register
+          method: post
+
+  login:
+    handler: user.login
+    events:
+      - http:
+          path: /api/login/account
+          method: post
+
+  currentUserAPI:
+    handler: api.currentUser
+    events:
+      - http:
+          path: /api/currentUser
+          method: get
+
+  ruleAPI:
+    handler: api.rule
+    events:
+      - http:
+          path: /api/rule
+
+package:
+  include:
+    - public/*
+
+aggregation:
+  agg-demo-all:
+    deployOrigin: false
+    functionsPattern:
+      - '*'
+
+custom:
+  customDomain:
+    domainName: qy.mdemo.cn

@@ -1,23 +1,25 @@
 {
-  "name": "todolist-backend",
+  "name": "midway-faas-hello-world",
   "version": "1.0.0",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "description": "",
-  "devDependencies": {},
-  "author": "",
-  "license": "MIT",
+  "private": true,
   "dependencies": {
-    "@webserverless/fc-express": "latest",
-    "body-parser": "^1.19.0",
-    "cookie-parser": "^1.4.4",
-    "express": "^4.17.0",
+    "@midwayjs/faas": "^0.2.92",
     "jsonwebtoken": "^8.5.1",
-    "lowdb": "^1.0.0",
+    "lodash": "^4.17.15",
     "md5": "^2.2.1",
-    "request": "^2.88.2",
     "tablestore": "^5.0.7",
-    "uuid": "^7.0.3"
+    "uuid": "^7.0.3",
+    "cookies": "^0.8.0",
+    "koa-static-cache": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/mocha": "^5.2.5",
+    "@midwayjs/serverless-invoke": "^0.2.92"
+  },
+  "scripts": {
+    "build": "f package --skipZip",
+    "debug": "f invoke -f index --debug",
+    "test": "f test",
+    "dev": "of invoke -p"
   }
 }

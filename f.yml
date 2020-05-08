@@ -1,0 +1,73 @@
+service: fc-qinyue-test
+
+provider:
+  name: aliyun
+  runtime: nodejs10
+
+functions:
+  index:
+    handler: index.handler
+    events:
+      - http:
+          path: /*
+
+  getUser:
+    handler: user.get
+    events:
+      - http:
+          path: /user/:id
+          method: get
+
+  listUser:
+    handler: user.list
+    events:
+      - http:
+          path: /api/users
+          method: get
+
+  registerUser:
+    handler: user.register
+    events:
+      - http:
+          path: /user/register
+          method: post
+
+  login:
+    handler: user.login
+    events:
+      - http:
+          path: /api/login/account
+          method: post
+
+  currentUserAPI:
+    handler: api.currentUser
+    events:
+      - http:
+          path: /api/currentUser
+          method: get
+
+  ruleAPI:
+    handler: api.rule
+    events:
+      - http:
+          path: /api/rule
+
+package:
+  include:
+    - public/*
+
+aggregation:
+  agg-demo-all:
+    deployOrigin: false
+    functions:
+      - index
+      - getUser
+      - listUser
+      - registerUser
+      - login
+      - currentUserAPI
+      - ruleAPI
+
+custom:
+  customDomain:
+    domainName: lesson11-ali.jike-serverless.online
