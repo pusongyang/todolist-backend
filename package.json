@@ -20,6 +20,6 @@
     "build": "f package --skipZip",
     "debug": "f invoke -f index --debug",
     "test": "f test",
-    "dev": "of invoke -p"
+    "dev": "f invoke -p"
   }
 }
