@@ -92,8 +92,8 @@ app.post('/api/rule', (req, res) => {
   const newKey = db.get('todos').value().length + 1;
   newRule = { ...defaultRule, key: newKey, name, desc };
   db.get('todos')
-  .push(newRule)
-  .write();
+    .push(newRule)
+    .write();
   return res.json(newRule);
 });
 app.delete('/api/rule', (req, res) => {
@@ -102,7 +102,7 @@ app.delete('/api/rule', (req, res) => {
   const todos = db.get('todos').value();
   const newTodos = todos.filter(item => key.indexOf(item.key) === -1);
   db.set('todos', newTodos)
-  .write();
+    .write();
   const result = {
     list: todos,
     pagination: {
