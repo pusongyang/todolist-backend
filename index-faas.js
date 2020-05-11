@@ -22,6 +22,37 @@ let todos = [
     progress: 0,
   },
 ];
+//初始化用户
+const me = {
+  name: '秦粤',
+  avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+  userid: '00000001',
+  email: 'qinyue@me.com',
+  signature: '陕西的秦，广东的粤',
+  title: '全栈工程师',
+  group: '某厂－某事业群－某平台部－某技术部－中台团队',
+  tags: [
+    {
+      key: '0',
+      label: '全栈',
+    },
+  ],
+  notifyCount: 12,
+  unreadCount: 11,
+  country: 'China',
+  geographic: {
+    province: {
+      label: '浙江省',
+      key: '330000',
+    },
+    city: {
+      label: '杭州市',
+      key: '330100',
+    },
+  },
+  address: '余杭区某小区',
+  phone: '0752-26888xxxx',
+};
 
 const app = express();
 // 静态资源路由
@@ -97,36 +128,6 @@ app.post('/api/rule', (req, res) => {
   res.json(result);
 })
 app.get('/api/currentUser', (req, resp) => {
-  const me = {
-    name: 'Serati Ma',
-    avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-    userid: '00000001',
-    email: 'qinyue@me.com',
-    signature: '陕西的秦，广东的粤',
-    title: '全栈工程师',
-    group: '某厂－某事业群－某平台部－某技术部－中台团队',
-    tags: [
-      {
-        key: '0',
-        label: '老司机',
-      },
-    ],
-    notifyCount: 12,
-    unreadCount: 11,
-    country: 'China',
-    geographic: {
-      province: {
-        label: '浙江省',
-        key: '330000',
-      },
-      city: {
-        label: '杭州市',
-        key: '330100',
-      },
-    },
-    address: '余杭区某小区',
-    phone: '0752-26888xxxx',
-  };
   resp.json(me);
 });
 
@@ -135,7 +136,7 @@ app.all("/*", (req, resp) => {
   resp.setHeader('Content-Type', 'text/html');
   resp.send(fs.readFileSync('./public/index.html', 'utf8'));
 });
-阿里云FaaS部署
+// 阿里云FaaS部署
 const server = new Server(app);
 module.exports.handler = function(req, res, context) {
   server.httpProxy(req, res, context);
