@@ -8,4 +8,4 @@ COPY . /home/myhome/myapp
 COPY public /home/myhome/myapp/public/
 COPY node_modules /home/myhome/myapp/node_modules/
 WORKDIR /home/myhome/myapp/
-ENTRYPOINT [ "node","index.js" ]
+

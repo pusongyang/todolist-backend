@@ -51,13 +51,13 @@ const defaultRule = {
   progress: 0,
 };
 let TodoList = [];
-const client = new TableStore.Client({
-  accessKeyId,
-  accessKeySecret,
-  endpoint,
-  instancename,
-  maxRetries:20,//默认20次重试，可以省略这个参数。
-});
+// const client = new TableStore.Client({
+//   accessKeyId,
+//   accessKeySecret,
+//   endpoint,
+//   instancename,
+//   maxRetries:20,//默认20次重试，可以省略这个参数。
+// });
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -103,13 +103,14 @@ app.post('/api/rule',async (req, res) => {
   let newRule = { ...defaultRule, key: v4(), name, desc };
   TodoList.unshift(newRule);
   const params = updateTodos(TodoList);
-  client.updateRow(params, function (err, data) {
-    if (err) {
-      console.log('error:', err);
-      return;
-    }
-    return res.json(newRule);
-  });
+  res.json({})
+  // client.updateRow(params, function (err, data) {
+  //   if (err) {
+  //     console.log('error:', err);
+  //     return;
+  //   }
+  //   return res.json(newRule);
+  // });
 });
 app.delete('/api/rule',async (req, res) => {
   checkJWT(req, res);
@@ -117,19 +118,20 @@ app.delete('/api/rule',async (req, res) => {
   const { key } = body;
   TodoList = TodoList.filter(item => key.indexOf(item.key) === -1);
   const params = updateTodos(TodoList);
-  client.updateRow(params, function (err, data) {
-    if (err) {
-      console.log('error:', err);
-      return;
-    }
-    const result = {
-      list: TodoList,
-      pagination: {
-        total: TodoList.length,
-      },
-    };
-    return res.json(result);
-  });
+  res.json({})
+  // client.updateRow(params, function (err, data) {
+  //   if (err) {
+  //     console.log('error:', err);
+  //     return;
+  //   }
+  //   const result = {
+  //     list: TodoList,
+  //     pagination: {
+  //       total: TodoList.length,
+  //     },
+  //   };
+  //   return res.json(result);
+  // });
 });
 app.put('/api/rule',async (req, res) => {
   checkJWT(req, res);
@@ -139,13 +141,14 @@ app.put('/api/rule',async (req, res) => {
   let newRule = { ...TodoList[target], desc, name, status};
   TodoList[target] = newRule;
   const params = updateTodos(TodoList);
-  client.updateRow(params, function (err, data) {
-    if (err) {
-      console.log('error:', err);
-      return;
-    }
-    return res.json(newRule);
-  });
+  res.json({})
+  // client.updateRow(params, function (err, data) {
+  //   if (err) {
+  //     console.log('error:', err);
+  //     return;
+  //   }
+  //   return res.json(newRule);
+  // });
 });
 
 // 阿里云FaaS部署
@@ -174,14 +177,18 @@ app.all("/*", (req, resp) => {
   resp.send(fs.readFileSync('./public/index.html', 'utf8'));
 });
 
-client.getRow(params, function (err, data) {
-  if (err) {
-    console.error('error:', err);
-    return;
-  }
-  TodoList = JSON.parse(data.row.attributes[0].columnValue);
-  // 监听PORT端口
-  app.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`Example app listening at http://localhost:${PORT}`)
   });
-});
+
+// client.getRow(params, function (err, data) {
+//   if (err) {
+//     console.error('error:', err);
+//     return;
+//   }
+//   TodoList = JSON.parse(data.row.attributes[0].columnValue);
+//   // 监听PORT端口
+//   app.listen(PORT, () => {
+//     console.log(`Example app listening at http://localhost:${PORT}`)
+//   });
+// });
