@@ -1,31 +1,21 @@
-edition: 1.0.0
-name: my-framework-app
-access: default
-services:
-  framework:
-    component: fc
-    props:
-      region: cn-hangzhou
-      service:
-        name: serverless-devs-application
-      function:
-        name: todolist-backend-gokb
-        description: Initialize
-        runtime: nodejs16.debian10
-        memorySize: 128
-        cpu: 0.05
-        timeout: 60
-        codeUri: ./
-        diskSize: 512
-      triggers:
-        - name: httpTrigger
-          type: http
-          config:
-            authType: anonymous
-            methods:
+ROSTemplateFormatVersion: '2015-09-01'
+Transform: 'Aliyun::Serverless-2018-04-03'
+Resources:
+  todolist-backend:
+    Type: 'Aliyun::Serverless::Service'
+    Properties:
+      Description: 'helloworld'
+    todolist-backend:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Handler: index.handler
+        Runtime: nodejs10
+        CodeUri: './'
+      Events:
+        httpTrigger:
+          Type: HTTP
+          Properties:
+            AuthType: ANONYMOUS
+            Methods:
               - GET
               - POST
-              - PUT
-              - DELETE
-              - HEAD
-              - PATCH
